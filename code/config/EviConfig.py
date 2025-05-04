@@ -533,25 +533,29 @@ class EviConfig(object):
 		w = 0
 
 		for i, item in enumerate(test_evidence_result):
-			correct += item[0]
-			pr_y.append(float(correct) / (i + 1))
-			pr_x.append(float(correct) / total_evidence_recall)
+			correct += item[0]  # item[0] = 1 if correct, 0 if not
+			pr_y.append(float(correct) / (i + 1))  # Precision
+			pr_x.append(float(correct) / total_evidence_recall)  # Recall
 			if item[1] > input_theta:
 				w = i
-
 
 		pr_x = np.asarray(pr_x, dtype='float32')
 		pr_y = np.asarray(pr_y, dtype='float32')
 		f1_arr = (2 * pr_x * pr_y / (pr_x + pr_y + 1e-20))
 		f1_pos = f1_arr.argmax()
 		evidence_f1 = f1_arr.max()
-		auc = sklearn.metrics.auc(x = pr_x, y = pr_y)
+		auc = sklearn.metrics.auc(x=pr_x, y=pr_y)
 
-		if input_theta==-1:
+		if input_theta == -1:
 			w = f1_pos
 			input_theta = test_evidence_result[w][1]
 
-		logging('ma_f1{:3.4f} | input_theta {:3.4f} test_evidence_result F1 {:3.4f} | AUC {:3.4f}'.format(evidence_f1, input_theta, f1_arr[w], auc))
+		# Extract precision and recall at chosen threshold
+		evidence_precision = pr_y[w]
+		evidence_recall = pr_x[w]
+
+		logging('ma_f1 {:3.4f} | input_theta {:3.4f} | F1 {:3.4f} | Precision {:3.4f} | Recall {:3.4f} | AUC {:3.4f}'.format(
+			evidence_f1, input_theta, f1_arr[w], evidence_precision, evidence_recall, auc))
 
 		if output:
 			info2evi = {}
@@ -587,5 +591,5 @@ class EviConfig(object):
 		model.load_state_dict(torch.load(os.path.join(self.checkpoint_dir, model_name)))
 		model.cuda()
 		model.eval()
-		self.test(model, model_name, True, input_theta)
-
+		evidence_f1 = self.test(model, model_name, True, input_theta)
+		print(evidence_f1)

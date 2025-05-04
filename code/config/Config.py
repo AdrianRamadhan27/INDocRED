@@ -662,12 +662,11 @@ class Config(object):
 			total_recall = 1  # for test
 
 		for i, item in enumerate(test_result):
-			correct += item[0]
-			pr_y.append(float(correct) / (i + 1))
-			pr_x.append(float(correct) / total_recall)
+			correct += item[0]  # item[0] = 1 if prediction is correct (True Positive)
+			pr_y.append(float(correct) / (i + 1))  # Precision
+			pr_x.append(float(correct) / total_recall)  # Recall
 			if item[1] > input_theta:
 				w = i
-
 
 		pr_x = np.asarray(pr_x, dtype='float32')
 		pr_y = np.asarray(pr_y, dtype='float32')
@@ -676,15 +675,22 @@ class Config(object):
 		f1_pos = f1_arr.argmax()
 		theta = test_result[f1_pos][1]
 
-		if input_theta==-1:
+		if input_theta == -1:
 			w = f1_pos
 			input_theta = theta
 
-		auc = sklearn.metrics.auc(x = pr_x, y = pr_y)
+		# Precision and recall at threshold `w`
+		precision = pr_y[w]
+		recall = pr_x[w]
+
+		auc = sklearn.metrics.auc(x=pr_x, y=pr_y)
+
 		if not self.is_test:
-			logging('ALL  : Theta {:3.4f} | F1 {:3.4f} | AUC {:3.4f}'.format(theta, f1, auc))
+			logging('ALL  : Theta {:3.4f} | F1 {:3.4f} | Precision {:3.4f} | Recall {:3.4f} | AUC {:3.4f}'.format(
+				theta, f1, precision, recall, auc))
 		else:
-			logging('ma_f1 {:3.4f} | input_theta {:3.4f} test_result F1 {:3.4f} | AUC {:3.4f}'.format(f1, input_theta, f1_arr[w], auc))
+			logging('ma_f1 {:3.4f} | input_theta {:3.4f} | F1 {:3.4f} | Precision {:3.4f} | Recall {:3.4f} | AUC {:3.4f}'.format(
+				f1, input_theta, f1_arr[w], precision, recall, auc))
 
 		if output:
 			# output = [x[-4:] for x in test_result[:w+1]]
@@ -701,16 +707,17 @@ class Config(object):
 		pr_y = []
 		correct = correct_in_train = 0
 		w = 0
+
 		for i, item in enumerate(test_result):
 			correct += item[0]
-			if item[0] & item[2]:
+			if item[0] & item[2]:  # Seen in training
 				correct_in_train += 1
-			if correct_in_train==correct:
+			if correct_in_train == correct:
 				p = 0
 			else:
-				p = float(correct - correct_in_train) / (i + 1 - correct_in_train)
+				p = float(correct - correct_in_train) / (i + 1 - correct_in_train)  # Adjusted precision
 			pr_y.append(p)
-			pr_x.append(float(correct) / total_recall)
+			pr_x.append(float(correct) / total_recall)  # Recall
 			if item[1] > input_theta:
 				w = i
 
@@ -719,9 +726,15 @@ class Config(object):
 		f1_arr = (2 * pr_x * pr_y / (pr_x + pr_y + 1e-20))
 		f1 = f1_arr.max()
 
-		auc = sklearn.metrics.auc(x = pr_x, y = pr_y)
+		# Extract precision and recall at threshold w
+		precision = pr_y[w]
+		recall = pr_x[w]
 
-		logging('Ignore ma_f1 {:3.4f} | input_theta {:3.4f} test_result F1 {:3.4f} | AUC {:3.4f}'.format(f1, input_theta, f1_arr[w], auc))
+		auc = sklearn.metrics.auc(x=pr_x, y=pr_y)
+
+		logging('Ignore ma_f1 {:3.4f} | input_theta {:3.4f} | F1 {:3.4f} | Precision {:3.4f} | Recall {:3.4f} | AUC {:3.4f}'.format(
+			f1, input_theta, f1_arr[w], precision, recall, auc))
+
 
 		return f1, auc, pr_x, pr_y
 
@@ -734,3 +747,4 @@ class Config(object):
 		model.cuda()
 		model.eval()
 		f1, auc, pr_x, pr_y = self.test(model, model_name, True, input_theta)
+		print("F1", f1,"AUC",auc, "Prec&Rec", pr_x, pr_y)
