@@ -575,7 +575,7 @@ class EviConfig(object):
 				evidence = v
 				output.append({'title':title, 'h_idx': h_idx, 't_idx': t_idx, 'r': r, 'evidence': evidence})
 
-			json.dump(output, open(self.output_file, "w"))
+			json.dump(output, open(f'{self.test_prefix}_{self.output_file}', "w"))
 
 		return evidence_f1
 
