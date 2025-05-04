@@ -1,0 +1,13 @@
+{
+  "BLANK": 0,
+  "DATE": 1,
+  "FAC": 2,
+  "GPE": 3,
+  "LAW": 4,
+  "LOC": 5,
+  "NORP": 6,
+  "ORG": 7,
+  "PER": 8,
+  "PRODUCT": 9,
+  "WORK": 10
+}
