@@ -37,7 +37,7 @@ class BiLSTM(nn.Module):
 		input_size = config.data_word_vec.shape[1]
 		if self.use_entity_type:
 			input_size += config.entity_type_size
-			self.ner_emb = nn.Embedding(7, config.entity_type_size, padding_idx=0)
+			self.ner_emb = nn.Embedding(11, config.entity_type_size, padding_idx=0)
 
 		if self.use_coreference:
 			input_size += config.coref_size
