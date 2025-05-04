@@ -19,7 +19,7 @@ class ContextAware(nn.Module):
 		self.word_emb.weight.data.copy_(torch.from_numpy(config.data_word_vec))
 		self.word_emb.weight.requires_grad = False
 
-		self.ner_emb = nn.Embedding(7, config.entity_type_size, padding_idx=0)
+		self.ner_emb = nn.Embedding(11, config.entity_type_size, padding_idx=0)
 
 		self.coref_embed = nn.Embedding(config.max_length, config.coref_size, padding_idx=0)
 
