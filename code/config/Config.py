@@ -725,10 +725,15 @@ class Config(object):
 		pr_y = np.asarray(pr_y, dtype='float32')
 		f1_arr = (2 * pr_x * pr_y / (pr_x + pr_y + 1e-20))
 		f1 = f1_arr.max()
+		f1_pos = f1_arr.argmax()
+
 
 		# Extract precision and recall at threshold w
-		precision = pr_y[w]
-		recall = pr_x[w]
+		# precision = pr_y[w]
+		# recall = pr_x[w]
+
+		precision = pr_y[f1_pos]
+		recall = pr_x[f1_pos]
 
 		auc = sklearn.metrics.auc(x=pr_x, y=pr_y)
 

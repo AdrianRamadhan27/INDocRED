@@ -551,8 +551,8 @@ class EviConfig(object):
 			input_theta = test_evidence_result[w][1]
 
 		# Extract precision and recall at chosen threshold
-		evidence_precision = pr_y[w]
-		evidence_recall = pr_x[w]
+		evidence_precision = pr_y[f1_pos]
+		evidence_recall = pr_x[f1_pos]
 
 		logging('ma_f1 {:3.4f} | input_theta {:3.4f} | F1 {:3.4f} | Precision {:3.4f} | Recall {:3.4f} | AUC {:3.4f}'.format(
 			evidence_f1, input_theta, f1_arr[w], evidence_precision, evidence_recall, auc))
